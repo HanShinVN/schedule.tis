@@ -11,6 +11,7 @@ body {
   background: var(--bg-page);
   font-family: "Roboto", "Segoe UI", sans-serif;
   color: var(--dark);
+  padding-bottom: 60px; /* Tránh bị nút FAB đè lên nội dung */
 }
 
 .fade-in { animation: fadeIn 0.6s ease-out forwards; }
@@ -19,58 +20,76 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.form-label { font-weight: 500; font-size: 0.9rem; color: #343a40; }
-.form-control, .form-select, .input-group-text, .btn {
-  border-radius: var(--radius);
-  padding: 10px 14px;
-}
-.form-control:focus, .form-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(214, 31, 47, 0.1);
-}
+/* Card & Table Styles */
+.table-responsive { border-radius: var(--radius); overflow: hidden; }
+.table thead { background-color: var(--primary); color: white; }
 
-.btn-primary {
+/* Nút bấm nổi (Floating Action Button) cho Mobile */
+.fab-mobile {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
   background-color: var(--primary);
-  border-color: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: none; /* Chỉ hiện trên mobile */
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 15px rgba(214, 31, 47, 0.4);
+  z-index: 1000;
+  text-decoration: none;
   transition: var(--transition);
 }
-.btn-primary:hover, .btn-primary:active {
-  background-color: var(--primary-hover) !important;
-  border-color: var(--primary-hover) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(214, 31, 47, 0.3);
-}
-.btn-dark { background-color: #2c3e50; border: none; }
-.btn-dark:hover { background-color: #1a252f; }
+.fab-mobile:hover { color: white; transform: scale(1.1); }
 
+/* Tối ưu cho Mobile (Dưới 768px) */
+@media (max-width: 768px) {
+  .fab-mobile { display: flex; }
+  .header-actions { display: none; } /* Ẩn nút trên header khi có FAB */
+
+  /* Biến bảng (list.html) thành dạng Card */
+  .table-responsive thead { display: none; }
+  .table-responsive table, .table-responsive tbody, .table-responsive tr, .table-responsive td { 
+    display: block; width: 100%; 
+  }
+  .table-responsive tr {
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    border-radius: var(--radius);
+    background: white;
+    padding: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  }
+  .table-responsive td {
+    text-align: left !important;
+    padding: 8px 5px !important;
+    border: none !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .table-responsive td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #888;
+    font-size: 0.8rem;
+    margin-right: 10px;
+  }
+  
+  /* Tối ưu Calendar Toolbar */
+  .fc-toolbar { flex-direction: column; gap: 10px; }
+  .fc-toolbar-title { font-size: 1.1rem !important; }
+}
+
+/* Overlays */
 #loadingOverlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6); z-index: 9999;
-  display: flex; flex-direction: column;
+  background: rgba(0,0,0,0.7); z-index: 9999;
+  display: flex;
   align-items: center; justify-content: center;
   backdrop-filter: blur(4px);
-}
-
-#successOverlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  z-index: 10000;
-  display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(5px);
-}
-.success-card {
-  background: white; padding: 40px; border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-  max-width: 90%; width: 400px; border: 1px solid #eee;
-  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@media (max-width: 576px) {
-  .card-body { padding: 20px; }
-  .btn { width: 100%; margin-bottom: 5px; }
-  #btnMeasure { width: auto; margin-bottom: 0; }
+  /* Xóa hoặc comment dòng flex-direction: column; nếu có */
 }
