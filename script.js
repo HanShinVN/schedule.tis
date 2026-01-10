@@ -31,15 +31,16 @@ const toggleLoading = (show) => {
 function showSuccessAndReload() {
     const overlay = document.getElementById('successOverlay');
     const countEl = document.getElementById('countdown');
-    let seconds = 5;
+    let seconds = 3; // Giảm xuống 3 giây cho nhanh
     overlay.classList.remove('d-none');
     
     const interval = setInterval(() => {
         seconds--;
-        countEl.innerText = seconds;
+        if(countEl) countEl.innerText = seconds; // Kiểm tra nếu element tồn tại
         if (seconds <= 0) {
             clearInterval(interval);
-            location.reload();
+            // Sửa dòng này: chuyển hướng sang trang lịch
+            window.location.href = 'calendar.html'; 
         }
     }, 1000);
 }
@@ -112,12 +113,12 @@ async function checkSchedule() {
     if (res.status === 'BLOCKED') {
         isBlocked = true;
         els.alertBox.className = 'alert alert-danger shadow-sm border-danger';
-        els.alertBox.innerHTML = `⛔ <strong>KHÔNG THỂ ĐĂNG KÝ</strong>\n${res.message}`;
+        els.alertBox.innerHTML = `⛔ <strong>KHÔNG THỂ ĐĂNG KÝ</strong>\n</br>${res.message}`;
         els.btnSubmit.disabled = true;
     } else if (res.status === 'WARNING') {
         isBlocked = false;
         els.alertBox.className = 'alert alert-warning shadow-sm border-warning';
-        els.alertBox.innerHTML = `⚠️ <strong>CẢNH BÁO TRÙNG</strong>\n${res.message}`;
+        els.alertBox.innerHTML = `⚠️ <strong>CẢNH BÁO TRÙNG</strong>\n</br>${res.message}`;
     } else {
         isBlocked = false;
         els.alertBox.className = 'alert alert-success border-success';
