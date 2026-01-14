@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIS| Đăng Ký Đi Công Tác</title>
+    <title>TIS | Đăng Ký Đi Công Tác</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
@@ -26,11 +26,11 @@
             <p class="fs-5 text-muted mb-4">Chúc bạn thượng lộ bình an 🚗✈️</p>
             
             <div class="alert alert-light border border-secondary border-opacity-25 d-inline-block px-4 py-2 mb-4">
-                Tự động tải lại trang sau <strong class="text-danger" id="countdown">5</strong> giây
+                Tự động tải lại trang sau <strong class="text-danger" id="countdown">3</strong> giây
             </div>
             <br>
-            <button onclick="location.reload()" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
-                <i class="bi bi-arrow-clockwise me-2"></i> Tải lại ngay
+            <button onclick="location.href='calendar.html'" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
+                <i class="bi bi-arrow-clockwise me-2"></i> Xem lịch ngay
             </button>
         </div>
     </div>
@@ -40,13 +40,13 @@
             <div class="col-lg-6 col-md-8">
                 
                 <div class="text-center mb-4 fade-in">
-                    <img src="logo.png" alt="T1S Logo" class="img-fluid mb-3" style="max-height: 80px;">
+                    <img src="logo.png" alt="TIS Logo" class="img-fluid mb-3" style="max-height: 80px;">
                     <h5 class="text-uppercase fw-bold text-secondary mb-3">Cổng Đăng Ký Lịch Công Tác</h5>
                     
                     <a href="calendar.html" class="btn btn-outline-primary btn-sm rounded-pill px-3">
                         <i class="bi bi-list-ul me-1"></i> Xem Lịch Trình Đã Đăng Ký
                     </a>
-                    </div>
+                </div>
 
                 <div class="card shadow-lg border-0 fade-in">
                     <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
@@ -75,9 +75,8 @@
                                         <option value="Phi Hàng Hải">Phi Hàng Hải</option>
                                         <option value="Phi Hàng Hải - SK">Bảo Hiểm Sức Khỏe</option>
                                         <option value="Phát triển kinh doanh">Phát Triển Kinh Doanh</option>
-                                        <option value="Hàng Hải">Hỗ trợ Kinh Doanh</option>
+                                        <option value="Hỗ trợ Kinh Doanh">Hỗ trợ Kinh Doanh</option>
                                         <option value="Kế toán Tổng hợp">Kế Toán Tổng hợp</option>
-
                                     </select>
                                 </div>
                             </div>
@@ -122,27 +121,36 @@
 
                             <div id="scheduleAlert" class="alert d-none mb-3 py-2 text-center small fw-bold"></div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Điểm đến công tác <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white text-danger"><i class="bi bi-geo-alt-fill"></i></span>
-                                    <input type="text" id="destination" class="form-control" placeholder="Nhập địa chỉ cụ thể..." required>
-                                    <button type="button" id="btnMeasure" class="btn btn-dark text-nowrap">
-                                        <i class="bi bi-magic"></i> Đo KM
+                            <div class="mb-3 p-3 bg-light rounded-3 border">
+                                <label class="form-label fw-bold text-dark"><i class="bi bi-map-fill text-danger"></i> Lộ trình công tác</label>
+                                
+                                <div id="destinations-container">
+                                    <div class="input-group mb-2 destination-row">
+                                        <span class="input-group-text bg-white text-danger fw-bold shadow-sm" style="width: 45px; justify-content: center;">1</span>
+                                        <input type="text" class="form-control dest-input shadow-sm" placeholder="Điểm đến đầu tiên (VD: Khách sạn A)" required>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold bg-white" onclick="addDestinationField()">
+                                        <i class="bi bi-plus-circle-fill"></i> Thêm điểm đến
+                                    </button>
+
+                                    <button type="button" id="btnMeasure" class="btn btn-dark btn-sm text-nowrap rounded-pill px-3 shadow-sm">
+                                        <i class="bi bi-lightning-charge-fill text-warning"></i> Tính Tổng KM
                                     </button>
                                 </div>
-                                <div class="form-text">Bắt buộc nhấn "Đo KM" trước khi gửi.</div>
+                                <div class="form-text text-end mt-2 fst-italic small">Nhập lần lượt các điểm theo thứ tự di chuyển.</div>
                             </div>
-
-                            <div class="row g-3 mb-3 p-3 bg-light rounded-3 mx-0 border">
-                                <div class="col-6">
-                                    <label class="small text-muted text-uppercase fw-bold">Khoảng cách</br>(Dự Kiến)</label>
-                                    <div class="fs-5 fw-bold text-danger" id="kmDisplay">0 km</div>
+                            <div class="row g-3 mb-3 p-3 bg-white rounded-3 mx-0 border shadow-sm">
+                                <div class="col-6 text-center">
+                                    <label class="small text-muted text-uppercase fw-bold">Tổng khoảng cách</label>
+                                    <div class="fs-4 fw-bold text-danger" id="kmDisplay">0 km</div>
                                     <input type="hidden" id="km">
                                 </div>
-                                <div class="col-6 border-start">
-                                    <label class="small text-muted text-uppercase fw-bold">Thời gian di chuyển</br>(Dự Kiến)</label>
-                                    <div class="fs-5 fw-bold text-success" id="durationDisplay">0 phút</div>
+                                <div class="col-6 border-start text-center">
+                                    <label class="small text-muted text-uppercase fw-bold">Tổng thời gian</label>
+                                    <div class="fs-4 fw-bold text-success" id="durationDisplay">0 phút</div>
                                     <input type="hidden" id="duration">
                                 </div>
                             </div>
@@ -179,10 +187,6 @@
             input.value = val;
             input.dispatchEvent(new Event('change'));
         }
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('startDate').setAttribute('min', today);
-        });
     </script>
 </body>
 </html>

@@ -5,7 +5,7 @@ const els = {
     startDate: document.getElementById('startDate'),
     startTime: document.getElementById('startTime'),
     days: document.getElementById('days'),
-    destination: document.getElementById('destination'),
+    destContainer: document.getElementById('destinations-container'),
     transport: document.getElementById('transport'),
     carOwnerGroup: document.getElementById('carOwnerGroup'),
     carOwner: document.getElementById('carOwner'),
@@ -31,19 +31,43 @@ const toggleLoading = (show) => {
 function showSuccessAndReload() {
     const overlay = document.getElementById('successOverlay');
     const countEl = document.getElementById('countdown');
-    let seconds = 3; // Giảm xuống 3 giây cho nhanh
+    let seconds = 3;
     overlay.classList.remove('d-none');
     
     const interval = setInterval(() => {
         seconds--;
-        if(countEl) countEl.innerText = seconds; // Kiểm tra nếu element tồn tại
+        if(countEl) countEl.innerText = seconds;
         if (seconds <= 0) {
             clearInterval(interval);
-            // Sửa dòng này: chuyển hướng sang trang lịch
             window.location.href = 'calendar.html'; 
         }
     }, 1000);
 }
+
+function addDestinationField() {
+    const count = els.destContainer.querySelectorAll('.destination-row').length + 1;
+    
+    const div = document.createElement('div');
+    div.className = 'input-group mb-2 destination-row fade-in';
+    div.innerHTML = `
+        <span class="input-group-text bg-white text-secondary fw-bold shadow-sm" style="width: 45px; justify-content: center;">${count}</span>
+        <input type="text" class="form-control dest-input shadow-sm" placeholder="Điểm đến tiếp theo" required>
+        <button class="btn btn-outline-danger bg-white shadow-sm" type="button" onclick="removeDestinationField(this)">
+            <i class="bi bi-trash"></i>
+        </button>
+    `;
+    els.destContainer.appendChild(div);
+}
+
+function removeDestinationField(btn) {
+    const row = btn.parentElement;
+    row.remove();
+    const rows = els.destContainer.querySelectorAll('.destination-row');
+    rows.forEach((r, index) => {
+        r.querySelector('.input-group-text').innerText = index + 1;
+    });
+}
+// -----------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
@@ -113,12 +137,12 @@ async function checkSchedule() {
     if (res.status === 'BLOCKED') {
         isBlocked = true;
         els.alertBox.className = 'alert alert-danger shadow-sm border-danger';
-        els.alertBox.innerHTML = `⛔ <strong>KHÔNG THỂ ĐĂNG KÝ</strong>\n</br>${res.message}`;
+        els.alertBox.innerHTML = `⛔ <strong>KHÔNG THỂ ĐĂNG KÝ</strong><br>${res.message}`;
         els.btnSubmit.disabled = true;
     } else if (res.status === 'WARNING') {
         isBlocked = false;
         els.alertBox.className = 'alert alert-warning shadow-sm border-warning';
-        els.alertBox.innerHTML = `⚠️ <strong>CẢNH BÁO TRÙNG</strong>\n</br>${res.message}`;
+        els.alertBox.innerHTML = `⚠️ <strong>CẢNH BÁO TRÙNG</strong><br>${res.message}`;
     } else {
         isBlocked = false;
         els.alertBox.className = 'alert alert-success border-success';
@@ -128,10 +152,16 @@ async function checkSchedule() {
 }
 
 async function measureDistance() {
-    const dest = els.destination.value.trim();
-    if (dest.length < 5) return alert("Vui lòng nhập địa chỉ cụ thể!");
+    const inputs = document.querySelectorAll('.dest-input');
+    const destinations = [];
+    inputs.forEach(input => {
+        if(input.value.trim()) destinations.push(input.value.trim());
+    });
+
+    if (destinations.length === 0) return alert("Vui lòng nhập ít nhất 1 địa chỉ!");
+
     toggleLoading(true);
-    const res = await callApi({ action: 'CALCULATE_DISTANCE', destination: dest });
+    const res = await callApi({ action: 'CALCULATE_DISTANCE', destinations: destinations });
     toggleLoading(false);
 
     if (res.status === 'success') {
@@ -145,12 +175,17 @@ async function measureDistance() {
 async function handleSubmit(e) {
     e.preventDefault();
     if (isBlocked) return alert("⛔ Trùng lịch xe! Vui lòng kiểm tra lại.");
-    if (!els.km.value) return alert("⚠️ Hãy đo KM trước!");
+    if (!els.km.value || els.km.value == 0) return alert("⚠️ Hãy nhấn nút 'Tính Tổng KM' trước!");
 
     toggleLoading(true);
 
     const transportVal = els.transport.value;
     const carOwnerVal = (transportVal === 'Ô tô') ? els.carOwner.value : '';
+
+    const inputs = document.querySelectorAll('.dest-input');
+    const destArr = [];
+    inputs.forEach(input => { if(input.value.trim()) destArr.push(input.value.trim()); });
+    const finalDestinationStr = destArr.join(' -> ');
 
     const payload = {
         action: 'SUBMIT_FORM',
@@ -159,7 +194,7 @@ async function handleSubmit(e) {
         startDate: els.startDate.value,
         startTime: els.startTime.value,
         days: els.days.value,
-        destination: els.destination.value,
+        destination: finalDestinationStr,
         km: els.km.value,
         duration: els.duration.value,
         transport: transportVal,
