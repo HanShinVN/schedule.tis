@@ -87,9 +87,21 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary w-100 rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                
+                <div class="modal-footer border-0 justify-content-between bg-light">
+                    <button type="button" class="btn btn-outline-danger rounded-pill" id="btnCancelTrip">
+                        <i class="bi bi-trash3-fill me-1"></i> Hủy chuyến
+                    </button>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn " id="btnEditTrip"></button>
+                        <!-- <button type="button" class="btn btn-warning text-white rounded-pill fw-bold shadow-sm" id="btnEditTrip"> -->
+                            <!-- <i class="bi bi-pencil-square me-1"></i> Sửa -->
+                        </button>
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Đóng</button>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
@@ -99,6 +111,8 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxwGpC5iQ73vLz8YKHsRfq-ZKCknKuZ69fzTWC9dPPhX8uEVqdd1_6Dh76Ry5X0o1HU/exec";
         let calendar;
+        let currentEventId = null;
+        let currentEventData = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             initCalendar();
@@ -150,7 +164,7 @@
                 
                 let startObj = new Date(isoStart);
                 let endObj = new Date(isoStart);
-                const duration = parseInt(item.days) || 1;
+                const duration = parseFloat(item.days) || 1;
                 endObj.setDate(startObj.getDate() + duration);
                 const isoEnd = endObj.toISOString().split('T')[0];
 
@@ -161,8 +175,7 @@
                 return {
                     title: `${item.fullName} - ${item.destination}`,
                     start: isoStart + 'T' + item.startTime,
-                    end: isoEnd,
-                    backgroundColor: color,
+                    end: isoEnd, 
                     borderColor: color,
                     extendedProps: item 
                 };
@@ -171,6 +184,9 @@
 
         function showEventDetail(event) {
             const props = event.extendedProps;
+            currentEventId = props.id;
+            currentEventData = props;
+
             const modal = new bootstrap.Modal(document.getElementById('eventModal'));
             document.getElementById('modalDestination').innerText = props.destination;
             document.getElementById('modalPerson').innerText = props.fullName;
@@ -190,7 +206,50 @@
             } else {
                 carBox.classList.add('d-none');
             }
+
+            document.getElementById('btnCancelTrip').onclick = function() { confirmCancel(currentEventId); };
+            document.getElementById('btnEditTrip').onclick = function() { editTrip(currentEventData); };
+
             modal.show();
+        }
+
+        async function confirmCancel(id) {
+            if(!confirm("Bạn có chắc chắn muốn HỦY chuyến đi này không?")) return;
+            
+            const btn = document.getElementById('btnCancelTrip');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: 'CANCEL_TRIP', id: id })
+                });
+                const json = await res.json();
+                
+                if(json.status === 'success') {
+                    alert("Đã hủy chuyến thành công!");
+                    bootstrap.Modal.getInstance(document.getElementById('eventModal')).hide();
+                    loadCalendarData();
+                } else {
+                    alert("Lỗi: " + json.message);
+                }
+            } catch (err) {
+                alert("Lỗi kết nối server!");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function editTrip(data) {
+            if(!confirm("Hệ thống sẽ chuyển sang trang Đăng ký để bạn sửa thông tin. Bấm OK để tiếp tục.")) return;
+            
+            data.oldId = currentEventId;
+            localStorage.setItem('editTripData', JSON.stringify(data));
+            
+            window.location.href = 'index.html';
         }
     </script>
     <div class="text-center mt-4 text-muted small">
