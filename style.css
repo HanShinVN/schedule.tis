@@ -11,34 +11,20 @@ body {
   background: var(--bg-page);
   font-family: "Roboto", "Segoe UI", sans-serif;
   color: var(--dark);
-  padding-bottom: 80px;
-  overflow-x: hidden;
+  padding-bottom: 60px; /* Tránh bị nút FAB đè lên nội dung */
 }
 
-.fade-in { 
-  animation: fadeIn 0.6s ease-out forwards; 
-  opacity: 0; 
-}
-
+.fade-in { animation: fadeIn 0.6s ease-out forwards; }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Card & Table Styles */
+.table-responsive { border-radius: var(--radius); overflow: hidden; }
+.table thead { background-color: var(--primary); color: white; }
 
-.card {
-  border-radius: var(--radius);
-  border: none;
-}
-.shadow-sm { box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important; }
-.shadow-lg { box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important; }
-
-.badge-transport { 
-  font-size: 0.85em; 
-  padding: 6px 10px; 
-  font-weight: 500;
-}
-
+/* Nút bấm nổi (Floating Action Button) cho Mobile */
 .fab-mobile {
   position: fixed;
   bottom: 25px;
@@ -48,7 +34,7 @@ body {
   background-color: var(--primary);
   color: white;
   border-radius: 50%;
-  display: none;
+  display: none; /* Chỉ hiện trên mobile */
   align-items: center;
   justify-content: center;
   font-size: 28px;
@@ -57,146 +43,53 @@ body {
   text-decoration: none;
   transition: var(--transition);
 }
-.fab-mobile:hover { 
-  color: white; 
-  transform: scale(1.1); 
-  background-color: var(--primary-hover);
-}
+.fab-mobile:hover { color: white; transform: scale(1.1); }
 
-#loadingOverlay {
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%;
-  background: rgba(0, 0, 0, 0.75); 
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center; 
-  justify-content: center;
-  backdrop-filter: blur(5px);
-  transition: opacity 0.3s ease;
-}
-
-.loading-image-wrapper img {
-    animation: pulse 1.5s infinite ease-in-out;
-}
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.05); opacity: 1; }
-    100% { transform: scale(1); opacity: 0.8; }
-}
-
-#successOverlay {
-  position: fixed;
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  z-index: 9998;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.success-card {
-    background: white;
-    padding: 3rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    max-width: 90%;
-    width: 450px;
-    text-align: center;
-    border: 1px solid #eee;
-}
-
-.fc-toolbar-title {
-    font-size: 1.25rem !important;
-    font-weight: 700;
-    color: var(--primary);
-    text-transform: uppercase;
-}
-.fc-button-primary {
-    background-color: var(--primary) !important;
-    border-color: var(--primary) !important;
-}
-.fc-button-primary:hover {
-    background-color: var(--primary-hover) !important;
-    border-color: var(--primary-hover) !important;
-}
-.fc-button-active {
-    background-color: var(--primary-hover) !important;
-    border-color: var(--primary-hover) !important;
-}
-.fc-event {
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 2px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border: none !important;
-}
-.fc-day-today {
-    background-color: rgba(214, 31, 47, 0.05) !important; 
-}
-
+/* Tối ưu cho Mobile (Dưới 768px) */
 @media (max-width: 768px) {
   .fab-mobile { display: flex; }
-  .header-actions { display: none; }
+  .header-actions { display: none; } /* Ẩn nút trên header khi có FAB */
 
-  .table-responsive { overflow: visible; }
+  /* Biến bảng (list.html) thành dạng Card */
   .table-responsive thead { display: none; }
-  
-  .table-responsive table, 
-  .table-responsive tbody, 
-  .table-responsive tr, 
-  .table-responsive td { 
-    display: block; 
-    width: 100%; 
+  .table-responsive table, .table-responsive tbody, .table-responsive tr, .table-responsive td { 
+    display: block; width: 100%; 
   }
-  
   .table-responsive tr {
     margin-bottom: 15px;
     border: 1px solid #eee;
     border-radius: var(--radius);
     background: white;
-    padding: 15px;
+    padding: 12px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    position: relative;
   }
-
   .table-responsive td {
     text-align: left !important;
-    padding: 8px 0 !important;
+    padding: 8px 5px !important;
     border: none !important;
-    border-bottom: 1px dashed #eee !important;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
+  }
+  .table-responsive td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #888;
+    font-size: 0.8rem;
+    margin-right: 10px;
   }
   
-  .table-responsive td:last-child { border-bottom: none !important; }
-
-  .fc-header-toolbar {
-      flex-direction: column;
-      gap: 10px;
-  }
-  .fc-toolbar-chunk {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-  }
+  /* Tối ưu Calendar Toolbar */
+  .fc-toolbar { flex-direction: column; gap: 10px; }
+  .fc-toolbar-title { font-size: 1.1rem !important; }
 }
 
-
-.modal-content {
-    border-radius: 16px;
-    overflow: hidden;
-}
-.modal-header {
-    background: linear-gradient(135deg, var(--primary), #b01522);
-}
-
-.swal2-container {
-    z-index: 1060 !important;
+/* Overlays */
+#loadingOverlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7); z-index: 9999;
+  display: flex;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+  /* Xóa hoặc comment dòng flex-direction: column; nếu có */
 }

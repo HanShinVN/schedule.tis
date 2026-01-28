@@ -5,10 +5,14 @@ const els = {
     startDate: document.getElementById('startDate'),
     startTime: document.getElementById('startTime'),
     days: document.getElementById('days'),
-    destContainer: document.getElementById('destinations-container'),
+    destination: document.getElementById('destination'),
     transport: document.getElementById('transport'),
+    
+    // Cập nhật các element mới cho phần chọn xe
     carOwnerGroup: document.getElementById('carOwnerGroup'),
-    carOwner: document.getElementById('carOwner'),
+    carOwnerSelect: document.getElementById('carOwnerSelect'),
+    carOwnerInput: document.getElementById('carOwnerInput'),
+    
     companions: document.getElementById('companions'),
     
     btnMeasure: document.getElementById('btnMeasure'),
@@ -24,6 +28,16 @@ const els = {
 let isBlocked = false;
 let checkTimeout = null;
 
+// Hàm lấy giá trị thực tế của "Xe của ai"
+function getCarOwnerValue() {
+    if (els.transport.value !== 'Ô tô') return '';
+    const selected = els.carOwnerSelect.value;
+    if (selected === 'Khác') {
+        return els.carOwnerInput.value.trim();
+    }
+    return selected;
+}
+
 const toggleLoading = (show) => {
     if(els.loader) els.loader.classList.toggle('d-none', !show);
 };
@@ -31,12 +45,12 @@ const toggleLoading = (show) => {
 function showSuccessAndReload() {
     const overlay = document.getElementById('successOverlay');
     const countEl = document.getElementById('countdown');
-    let seconds = 3;
+    let seconds = 3; 
     overlay.classList.remove('d-none');
     
     const interval = setInterval(() => {
         seconds--;
-        if(countEl) countEl.innerText = seconds;
+        if(countEl) countEl.innerText = seconds; 
         if (seconds <= 0) {
             clearInterval(interval);
             window.location.href = 'calendar.html'; 
@@ -44,49 +58,45 @@ function showSuccessAndReload() {
     }, 1000);
 }
 
-function addDestinationField() {
-    const count = els.destContainer.querySelectorAll('.destination-row').length + 1;
-    
-    const div = document.createElement('div');
-    div.className = 'input-group mb-2 destination-row fade-in';
-    div.innerHTML = `
-        <span class="input-group-text bg-white text-secondary fw-bold shadow-sm" style="width: 45px; justify-content: center;">${count}</span>
-        <input type="text" class="form-control dest-input shadow-sm" placeholder="Điểm đến tiếp theo" required>
-        <button class="btn btn-outline-danger bg-white shadow-sm" type="button" onclick="removeDestinationField(this)">
-            <i class="bi bi-trash"></i>
-        </button>
-    `;
-    els.destContainer.appendChild(div);
-}
-
-function removeDestinationField(btn) {
-    const row = btn.parentElement;
-    row.remove();
-    const rows = els.destContainer.querySelectorAll('.destination-row');
-    rows.forEach((r, index) => {
-        r.querySelector('.input-group-text').innerText = index + 1;
-    });
-}
-// -----------------------------
-
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
     els.startDate.setAttribute('min', today);
 
+    // Xử lý khi chọn Phương tiện
     els.transport.addEventListener('change', function() {
         if (this.value === 'Ô tô') {
             els.carOwnerGroup.classList.remove('d-none');
-            els.carOwner.required = true;
-            els.carOwner.focus();
+            els.carOwnerSelect.required = true;
+            // Reset trạng thái
+            els.carOwnerSelect.value = "";
+            els.carOwnerInput.classList.add('d-none');
+            els.carOwnerInput.value = "";
         } else {
             els.carOwnerGroup.classList.add('d-none');
-            els.carOwner.required = false;
-            els.carOwner.value = '';
+            els.carOwnerSelect.required = false;
+            els.carOwnerSelect.value = "";
+            els.carOwnerInput.required = false;
+            els.carOwnerInput.value = "";
         }
         checkSchedule(); 
     });
 
-    els.carOwner.addEventListener('input', function() {
+    // Xử lý khi chọn Menu xe
+    els.carOwnerSelect.addEventListener('change', function() {
+        if (this.value === 'Khác') {
+            els.carOwnerInput.classList.remove('d-none');
+            els.carOwnerInput.required = true;
+            els.carOwnerInput.focus();
+        } else {
+            els.carOwnerInput.classList.add('d-none');
+            els.carOwnerInput.required = false;
+            els.carOwnerInput.value = ""; // Xóa giá trị nhập tay nếu chọn lại xe có sẵn
+            checkSchedule(); // Check ngay khi chọn xe có sẵn
+        }
+    });
+
+    // Xử lý khi nhập tay tên xe (Check sau khi dừng gõ)
+    els.carOwnerInput.addEventListener('input', function() {
         clearTimeout(checkTimeout);
         checkTimeout = setTimeout(checkSchedule, 500);
     });
@@ -114,21 +124,21 @@ async function callApi(payload) {
 async function checkSchedule() {
     const dateStr = els.startDate.value; 
     if (!dateStr || !els.startTime.value) return;
-    if (els.transport.value === 'Ô tô' && els.carOwner.value.trim().length < 2) return;
+
+    // Nếu là ô tô thì phải có tên xe mới check
+    const carOwnerVal = getCarOwnerValue();
+    if (els.transport.value === 'Ô tô' && carOwnerVal.length < 2) return;
 
     els.alertBox.className = 'alert alert-info d-block';
     els.alertBox.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Đang kiểm tra lịch xe...';
     els.btnSubmit.disabled = true;
-
-    const transportVal = els.transport.value;
-    const carOwnerVal = (transportVal === 'Ô tô') ? els.carOwner.value : '';
 
     const res = await callApi({
         action: 'CHECK_AVAILABILITY',
         date: dateStr,
         time: els.startTime.value,
         days: els.days.value,
-        transport: transportVal,
+        transport: els.transport.value,
         carOwner: carOwnerVal
     });
 
@@ -137,12 +147,12 @@ async function checkSchedule() {
     if (res.status === 'BLOCKED') {
         isBlocked = true;
         els.alertBox.className = 'alert alert-danger shadow-sm border-danger';
-        els.alertBox.innerHTML = `⛔ <strong>KHÔNG THỂ ĐĂNG KÝ</strong><br>${res.message}`;
+        els.alertBox.innerHTML = `⛔ <strong>KHÔNG THỂ ĐĂNG KÝ</strong>\n</br>${res.message}`;
         els.btnSubmit.disabled = true;
     } else if (res.status === 'WARNING') {
         isBlocked = false;
         els.alertBox.className = 'alert alert-warning shadow-sm border-warning';
-        els.alertBox.innerHTML = `⚠️ <strong>CẢNH BÁO TRÙNG</strong><br>${res.message}`;
+        els.alertBox.innerHTML = `⚠️ <strong>CẢNH BÁO TRÙNG</strong>\n</br>${res.message}`;
     } else {
         isBlocked = false;
         els.alertBox.className = 'alert alert-success border-success';
@@ -152,16 +162,10 @@ async function checkSchedule() {
 }
 
 async function measureDistance() {
-    const inputs = document.querySelectorAll('.dest-input');
-    const destinations = [];
-    inputs.forEach(input => {
-        if(input.value.trim()) destinations.push(input.value.trim());
-    });
-
-    if (destinations.length === 0) return alert("Vui lòng nhập ít nhất 1 địa chỉ!");
-
+    const dest = els.destination.value.trim();
+    if (dest.length < 5) return alert("Vui lòng nhập địa chỉ cụ thể!");
     toggleLoading(true);
-    const res = await callApi({ action: 'CALCULATE_DISTANCE', destinations: destinations });
+    const res = await callApi({ action: 'CALCULATE_DISTANCE', destinations: [dest] }); // Fix: gửi mảng destinations cho đúng API mới
     toggleLoading(false);
 
     if (res.status === 'success') {
@@ -175,17 +179,9 @@ async function measureDistance() {
 async function handleSubmit(e) {
     e.preventDefault();
     if (isBlocked) return alert("⛔ Trùng lịch xe! Vui lòng kiểm tra lại.");
-    if (!els.km.value || els.km.value == 0) return alert("⚠️ Hãy nhấn nút 'Tính Tổng KM' trước!");
+    if (!els.km.value) return alert("⚠️ Hãy đo KM trước!");
 
     toggleLoading(true);
-
-    const transportVal = els.transport.value;
-    const carOwnerVal = (transportVal === 'Ô tô') ? els.carOwner.value : '';
-
-    const inputs = document.querySelectorAll('.dest-input');
-    const destArr = [];
-    inputs.forEach(input => { if(input.value.trim()) destArr.push(input.value.trim()); });
-    const finalDestinationStr = destArr.join(' -> ');
 
     const payload = {
         action: 'SUBMIT_FORM',
@@ -194,11 +190,11 @@ async function handleSubmit(e) {
         startDate: els.startDate.value,
         startTime: els.startTime.value,
         days: els.days.value,
-        destination: finalDestinationStr,
+        destination: els.destination.value,
         km: els.km.value,
         duration: els.duration.value,
-        transport: transportVal,
-        carOwner: carOwnerVal,
+        transport: els.transport.value,
+        carOwner: getCarOwnerValue(), // Sử dụng hàm lấy tên xe mới
         companions: els.companions.value
     };
 
