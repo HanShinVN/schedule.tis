@@ -93,3 +93,28 @@ body {
   backdrop-filter: blur(4px);
   /* Xóa hoặc comment dòng flex-direction: column; nếu có */
 }
+
+
+/* Styling cho Màn hình Welcome */
+.welcome-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100vh;
+    background: linear-gradient(135deg, #f4f6f9 0%, #e9ecef 100%);
+    z-index: 1050; /* Hiển thị đè lên mọi thứ */
+}
+
+/* Hiệu ứng khi bấm chọn (Mờ và trượt lên trên) */
+.fade-out-up {
+    animation: fadeOutUp 0.4s ease-in forwards;
+}
+
+@keyframes fadeOutUp {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-30px); }
+}
+
+/* Nút bấm ở menu có hiệu ứng phóng to nhẹ */
+.transition-all:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}

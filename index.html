@@ -10,7 +10,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="welcomeMenu" class="welcome-overlay d-flex align-items-center justify-content-center">
+        <div class="card border-0 shadow-lg text-center p-4 p-md-5 rounded-4" style="max-width: 500px; width: 90%;">
+            <img src="logo.png" alt="TIS Logo" class="img-fluid mx-auto mb-4" style="max-height: 60px;">
+            <h4 class="fw-bold text-dark mb-2">Xin chào!</h4>
+            <p class="text-muted mb-4">Bạn muốn thực hiện đăng ký nào hôm nay?</p>
+            
+            <div class="d-grid gap-3">
+                <button onclick="chooseMode('car')" class="btn btn-outline-danger btn-lg rounded-pill fw-bold text-start p-3 d-flex align-items-center transition-all">
+                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                        <i class="bi bi-car-front-fill"></i>
+                    </div>
+                    Đăng Ký Xe Đi Công Tác
+                </button>
+                
+                <button onclick="chooseMode('leave')" class="btn btn-outline-primary btn-lg rounded-pill fw-bold text-start p-3 d-flex align-items-center transition-all">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                        <i class="bi bi-calendar2-minus-fill"></i>
+                    </div>
+                    Đăng Ký Xin Nghỉ Phép
+                </button>
+            </div>
+            <div class="mt-4 text-muted small">&copy; TIS Internal System</div>
+        </div>
+    </div>
 
+    <div class="container py-4 d-none" id="mainApp">
     <div id="loadingOverlay" class="d-none">
         <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;"></div>
         <div class="mt-3 fw-bold text-white fs-5">Đang xử lý...</div>
@@ -40,9 +65,15 @@
                 <div class="text-center mb-4 fade-in">
                     <img src="logo.png" alt="TIS Logo" class="img-fluid mb-3" style="max-height: 80px;">
                     <h5 class="text-uppercase fw-bold text-secondary mb-3">Cổng Đăng Ký Lịch Công Tác</h5>
-                    <a href="calendar.html" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                        <i class="bi bi-list-ul me-1"></i> Xem Lịch Trình Đã Đăng Ký
-                    </a>
+                    
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <a href="calendar.html" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-list-ul me-1"></i> Xem Lịch Trình
+                        </a>
+                        <a href="https://tis-sign-off.vercel.app/" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-calendar2-minus-fill me-1"></i> Xin Nghỉ Phép
+                        </a>
+                    </div>
                 </div>
 
                 <div class="card shadow-lg border-0 fade-in">
@@ -185,6 +216,24 @@
 
     <script src="script.js"></script>
     <script>
+        // Hàm xử lý khi người dùng chọn menu
+        function chooseMode(mode) {
+            if (mode === 'car') {
+                // Ẩn menu chọn
+                document.getElementById('welcomeMenu').classList.add('fade-out-up');
+                
+                // Đợi hiệu ứng mờ dần (0.4s) rồi mới hiện form công tác lên
+                setTimeout(() => {
+                    document.getElementById('welcomeMenu').classList.add('d-none');
+                    document.getElementById('mainApp').classList.remove('d-none');
+                    document.getElementById('mainApp').classList.add('fade-in');
+                }, 400);
+            } else if (mode === 'leave') {
+                // Hiển thị loading và chuyển trang
+                document.getElementById('loadingOverlay').classList.remove('d-none');
+                window.location.href = "https://tis-sign-off.vercel.app/";
+            }
+        }
         // Hàm chỉnh số ngày nhanh
         function adjustDays(delta) {
             const input = document.getElementById('days');
@@ -196,5 +245,4 @@
         }
     </script>
 </body>
-
 </html>
