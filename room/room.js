@@ -3,6 +3,7 @@ const ROOM_API_URL = "https://script.google.com/macros/s/AKfycby3f_cFZp8YP6AH9DT
 let checkTimeout = null;
 let isBlocked = false;
 
+// Xử lý UI chọn phòng & đổi nền
 function selectRoom(roomName, capacity, element, side) {
     document.querySelectorAll('.room-card').forEach(card => card.classList.remove('selected'));
     element.classList.add('selected');
@@ -23,12 +24,14 @@ function selectRoom(roomName, capacity, element, side) {
     checkAvailability(); 
 }
 
+// Chặn không cho chọn ngày quá khứ
 document.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toISOString().split('T')[0];
     const dateInput = document.getElementById('meetingDate');
     if(dateInput) dateInput.setAttribute('min', today);
 });
 
+// Lắng nghe sự thay đổi thời gian để check trùng lịch (debounce 500ms)
 ['meetingDate', 'startTime', 'endTime'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
@@ -39,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Hàm kiểm tra trùng lịch
 async function checkAvailability() {
     const room = document.getElementById('selectedRoom').value;
     const date = document.getElementById('meetingDate').value;
@@ -63,6 +67,9 @@ async function checkAvailability() {
     try {
         const res = await fetch(ROOM_API_URL, {
             method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
             body: JSON.stringify({
                 action: 'CHECK_ROOM', room: room, date: date, start: start, end: end
             })
@@ -84,6 +91,7 @@ async function checkAvailability() {
     }
 }
 
+// Xử lý sự kiện submit Form đặt phòng
 document.getElementById('roomForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -116,12 +124,14 @@ document.getElementById('roomForm').addEventListener('submit', async (e) => {
         start: document.getElementById('startTime').value,
         end: document.getElementById('endTime').value,
         note: document.getElementById('meetingNote').value
-        
     };
 
     try {
         const res = await fetch(ROOM_API_URL, {
             method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
             body: JSON.stringify(payload)
         }).then(r => r.json());
 
@@ -134,12 +144,14 @@ document.getElementById('roomForm').addEventListener('submit', async (e) => {
                 confirmButtonColor: '#D61F2F'
             });
             
+            // Reset form sau khi đặt xong
             document.getElementById('roomForm').reset();
             document.getElementById('selectedRoom').value = '';
             document.getElementById('meetingNote').value = '';
             document.querySelectorAll('.room-card').forEach(card => card.classList.remove('selected'));
             document.getElementById('conflictAlert').classList.add('d-none');
 
+            // Reset background
             document.getElementById('bg-left').className = 'bg-half';
             document.getElementById('bg-right').className = 'bg-half';
 

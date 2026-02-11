@@ -171,7 +171,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8">
                 
-                <div  class="text-center mb-4 fade-in">
+                <div class="text-center mb-4 fade-in">
                     <img src="logo.png" alt="TIS Logo" class="img-fluid mb-3" style="max-height: 70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
                     <h4 class="text-uppercase fw-bold text-white mb-2" style="letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">Đăng ký Phòng Họp</h4>
                     
@@ -187,7 +187,7 @@
                         <form id="roomForm">
                             
                             <div class="mb-4">
-                                <label class="form-label text-dark"><i class="bi bi-building-check text-danger me-1"></i> Chọn phòng họp</label>
+                                <label class="form-label text-dark"><i class="bi bi-building-check text-danger me-1"></i> Chọn phòng họp <span class="text-danger">*</span></label>
                                 <div class="room-map">
                                     <div class="room-card" onclick="selectRoom('Phòng Lớn', 15, this, 'left')">
                                         <div class="room-icon"><i class="bi bi-easel2-fill"></i></div>
@@ -210,7 +210,7 @@
                                     <input type="text" class="form-control" id="fullName" placeholder="VD: Nguyễn Văn A" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Nội dung cuộc họp </label><span class="text-muted fw-normal" style="font-size: 0.75rem;"></span></label>
+                                    <label class="form-label">Nội dung cuộc họp <span class="text-muted fw-normal" style="font-size: 0.75rem;">(Không bắt buộc)</span></label>
                                     <input type="text" class="form-control" id="meetingTitle" placeholder="VD: Họp báo cáo tuần">
                                 </div>
                             </div>
@@ -219,15 +219,15 @@
                                 <label class="form-label text-dark mb-3"><i class="bi bi-clock-history text-danger me-1"></i> Thời gian sử dụng</label>
                                 <div class="row g-3">
                                     <div class="col-12 col-sm-4">
-                                        <label class="small text-muted fw-bold">Ngày họp</label>
+                                        <label class="small text-muted fw-bold">Ngày họp <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="meetingDate" required>
                                     </div>
                                     <div class="col-6 col-sm-4">
-                                        <label class="small text-muted fw-bold">Từ giờ</label>
+                                        <label class="small text-muted fw-bold">Từ giờ <span class="text-danger">*</span></label>
                                         <input type="time" class="form-control" id="startTime" required>
                                     </div>
                                     <div class="col-6 col-sm-4">
-                                        <label class="small text-muted fw-bold">Đến giờ</label>
+                                        <label class="small text-muted fw-bold">Đến giờ <span class="text-danger">*</span></label>
                                         <input type="time" class="form-control" id="endTime" required>
                                     </div>
                                 </div>
@@ -256,7 +256,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <script src="room.js"></script>
 </body>
 </html>
