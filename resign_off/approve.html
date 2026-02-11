@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIS | Phê Duyệt</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png"> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f6f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Segoe UI', sans-serif; }
+        .card-box { width: 90%; max-width: 400px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 40px 30px; text-align: center; overflow: hidden; position: relative; }
+        
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        .bg-wait { background: #fff3cd; color: #ffc107; }
+        .bg-ok { background: #d1e7dd; color: #198754; }
+        .bg-err { background: #f8d7da; color: #dc3545; }
+
+        .spinner { width: 40px; height: 40px; border: 4px solid #eee; border-top: 4px solid #D61F2F; border-radius: 50%; animation: spin 1s infinite linear; margin: 0 auto; }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="card-box">
+        <div id="viewLoad">
+            <div class="spinner mb-4"></div>
+            <h5 class="fw-bold text-secondary">Đang kết nối hệ thống...</h5>
+            <p class="text-muted small">Vui lòng đợi trong giây lát.</p>
+        </div>
+
+        <div id="viewSuccess" class="d-none">
+            <div class="icon-circle bg-ok" id="iconResult"><i class="fa-solid fa-check"></i></div>
+            <h4 class="fw-bold" id="txtTitle">Thành Công!</h4>
+            
+            <p class="text-muted mb-4" id="txtMsg">Yêu cầu đã được xử lý.</p>
+            
+            <button onclick="window.close()" class="btn btn-dark w-100 rounded-pill py-2 fw-bold">Đóng trang này</button>
+        </div>
+
+        <div id="viewError" class="d-none">
+            <div class="icon-circle bg-err"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h4 class="fw-bold text-danger">Có Lỗi!</h4>
+            <p class="text-muted mb-4" id="errMsg">Không thể xử lý yêu cầu.</p>
+        </div>
+    </div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwVXj8-WuohDjwhHj5SvRvS3gfYrnk9GX5Xpk4G5Pn6fmMnGMBx1xCFqPKxXef9p1bYow/exec';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const action = params.get('action');
+        const boss = params.get('boss');
+
+        if(!id || !action) {
+            showError("Link không hợp lệ."); return;
+        }
+
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ action, id, boss })
+            }).then(r => r.json());
+
+            document.getElementById('viewLoad').classList.add('d-none');
+
+            if(res.status === 'success') {
+                const v = document.getElementById('viewSuccess');
+                v.classList.remove('d-none');
+                
+                if(action === 'REJECT') {
+                    document.getElementById('iconResult').className = 'icon-circle bg-err';
+                    document.getElementById('iconResult').innerHTML = '<i class="fa-solid fa-ban"></i>';
+                    document.getElementById('txtTitle').innerText = 'Đã Từ Chối';
+                    document.getElementById('txtTitle').className = 'fw-bold text-danger';
+                }
+
+                const empName = res.employeeName || "nhân viên";
+                const actionText = action === 'APPROVE' ? 'duyệt' : 'từ chối';
+
+                document.getElementById('txtMsg').innerHTML = `Đã ${actionText} đơn của <b>${empName}</b> thành công!`;
+
+            } else {
+                showError(res.message);
+            }
+        } catch(e) { showError("Lỗi kết nối máy chủ."); }
+    });
+
+    function showError(m) {
+        document.getElementById('viewLoad').classList.add('d-none');
+        document.getElementById('viewError').classList.remove('d-none');
+        document.getElementById('errMsg').innerText = m;
+    }
+</script>
+</body>
+</html>

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TIS| Đăng Ký Đi Công Tác</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png"> 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -13,7 +15,7 @@
     <div id="welcomeMenu" class="welcome-overlay d-flex align-items-center justify-content-center">
         <div class="card border-0 shadow-lg text-center p-4 p-md-5 rounded-4" style="max-width: 500px; width: 90%;">
             <img src="logo.png" alt="TIS Logo" class="img-fluid mx-auto mb-4" style="max-height: 60px;">
-            <h4 class="fw-bold text-dark mb-2">Cổng Thông Tin Đăng Ký</h4>
+            <h4 class="fw-bold text-dark mb-2">Cổng Đăng Ký Online</h4>
             <p class="text-muted mb-4">Xin chào! Bạn muốn thực hiện đăng ký nào ?</p>
             
             <div class="d-grid gap-3">
@@ -23,6 +25,13 @@
                     </div>
                     Đăng Ký Xe Đi Công Tác
                 </button>
+
+                <button onclick="chooseMode('room')" class="btn btn-outline-success btn-lg rounded-pill fw-bold text-start p-3 d-flex align-items-center transition-all">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                        <i class="bi bi-building-fill"></i>
+                    </div>
+                    Đặt Phòng Họp Công Ty
+                </button>
                 
                 <button onclick="chooseMode('leave')" class="btn btn-outline-primary btn-lg rounded-pill fw-bold text-start p-3 d-flex align-items-center transition-all">
                     <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -31,9 +40,10 @@
                     Đăng Ký Xin Nghỉ Phép
                 </button>
             </div>
-            <div class="mt-4 text-muted small">&copy; TIS Insurance Broker - Internal System</div>
         </div>
     </div>
+
+
 
     <div class="container py-4 d-none" id="mainApp">
     <div id="loadingOverlay" class="d-none">
@@ -64,14 +74,17 @@
                 
                 <div class="text-center mb-4 fade-in">
                     <img src="logo.png" alt="TIS Logo" class="img-fluid mb-3" style="max-height: 80px;">
-                    <h5 class="text-uppercase fw-bold text-secondary mb-3">Đăng Ký Xe Lịch Công Tác</h5>
+                    <h5 class="text-uppercase fw-bold text-secondary mb-3">Cổng Đăng Ký Lịch Công Tác</h5>
                     
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                         <a href="calendar.html" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">
-                            <i class="bi bi-list-ul me-1"></i> Xem Lịch Trình
+                            <i class="bi bi-list-ul me-1"></i> Xem lịch xe đã đăng ký
                         </a>
-                        <a href="https://tis-sign-off.vercel.app/" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">
+                        <a href="resign_off/resign_off.html" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">
                             <i class="bi bi-calendar2-minus-fill me-1"></i> Xin Nghỉ Phép
+                        </a>
+                        <a href="room/room.html" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-calendar2-minus-fill me-1"></i> Đăng ký phòng họp
                         </a>
                     </div>
                 </div>
@@ -216,34 +229,24 @@
 
     <script src="script.js"></script>
     <script>
-        // Hàm xử lý khi người dùng chọn menu
         function chooseMode(mode) {
             if (mode === 'car') {
-                // Ẩn menu chọn
                 document.getElementById('welcomeMenu').classList.add('fade-out-up');
-                
-                // Đợi hiệu ứng mờ dần (0.4s) rồi mới hiện form công tác lên
                 setTimeout(() => {
                     document.getElementById('welcomeMenu').classList.add('d-none');
                     document.getElementById('mainApp').classList.remove('d-none');
                     document.getElementById('mainApp').classList.add('fade-in');
                 }, 400);
-            } else if (mode === 'leave') {
-                // Hiển thị loading và chuyển trang
+            } 
+            else if (mode === 'room') {
                 document.getElementById('loadingOverlay').classList.remove('d-none');
-                window.location.href = "https://tis-sign-off.vercel.app/";
+                window.location.href = "room/room.html";
             }
-        }
-        // Hàm chỉnh số ngày nhanh
-        function adjustDays(delta) {
-            const input = document.getElementById('days');
-            let val = parseFloat(input.value) || 0;
-            val += delta;
-            if(val < 0.5) val = 0.5;
-            input.value = val;
-            input.dispatchEvent(new Event('change'));
+            else if (mode === 'leave') {
+                document.getElementById('loadingOverlay').classList.remove('d-none');
+                window.location.href = "resign_off/resign_off.html";
+            }
         }
     </script>
 </body>
-
 </html>

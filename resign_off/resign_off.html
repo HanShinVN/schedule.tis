@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIS | Đăng ký nghỉ</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png"> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
+    <link rel="stylesheet" href="resign_off.css">
+</head>
+<body>
+
+    <div id="loader" class="loader-overlay d-none">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="container py-4">
+        
+        <div class="text-center mb-4 animate-down">
+            <img src="logo.png" alt="TIS Logo" class="img-fluid logo-main">
+        </div>
+
+        <div class="row justify-content-center">
+            
+            <div id="mainContainer" class="col-lg-5 col-md-8 animate-up">
+                
+                <div class="card main-card">
+                    <div class="card-body p-4">
+                        
+                        <div id="stepEmail" class="auth-step">
+                            <h5 class="text-center fw-bold text-secondary mb-3">ĐĂNG NHẬP</h5>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-secondary"></i></span>
+                                <input type="email" id="email" class="form-control" placeholder="email@tisbroker.com">
+                            </div>
+                            <button id="btnGetOtp" class="btn btn-primary w-100 fw-bold py-2">
+                                TIẾP TỤC <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+
+                        <div id="stepOtp" class="auth-step d-none text-center">
+                            <div class="icon-circle bg-light text-danger mb-3 mx-auto">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <h5 class="fw-bold">Xác thực danh tính</h5>
+                            <p class="text-muted small mb-4">Mã OTP đã được gửi về email của bạn.</p>
+                            
+                            <div class="mb-4">
+                                <input type="text" id="otpCode" class="form-control otp-input mx-auto" placeholder="000000" maxlength="6">
+                            </div>
+
+                            <button id="btnVerify" class="btn btn-success w-100 fw-bold py-2 mb-3">
+                                XÁC MINH & ĐĂNG NHẬP
+                            </button>
+                            <a href="#" id="btnBack" class="text-decoration-none text-muted small">
+                                <i class="fa-solid fa-arrow-left"></i> Quay lại
+                            </a>
+                        </div>
+
+                        <div id="stepForm" class="d-none auth-step">
+                            
+                            <div class="info-box mb-4 p-3 rounded">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-dark" id="myName">...</h6>
+                                        <small class="text-muted d-block" id="myDept">...</small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button id="btnToDashboard" class="btn btn-sm btn-outline-danger d-none" title="Xem lịch quản lý">
+                                            <i class="fa-solid fa-calendar-days"></i>
+                                        </button>
+                                        <button id="btnLogout" class="btn btn-sm btn-outline-secondary" title="Đăng xuất">
+                                            <i class="fa-solid fa-power-off"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-2 pt-2 border-top border-secondary-subtle d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Phép khả dụng:</small>
+                                    <span class="badge bg-success rounded-pill fs-6 px-3" id="myBal">0</span>
+                                </div>
+                            </div>
+                            
+                            <h6 class="fw-bold text-danger text-uppercase mb-3 border-bottom pb-2">Tạo Đơn Mới</h6>
+
+                            <form id="leaveForm">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-secondary">Ngày bắt đầu</label>
+                                        <input type="date" id="startDate" class="form-control" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-bold text-secondary">Số ngày</label>
+                                        <input type="number" id="days" class="form-control" step="0.5" min="0.5" value="1" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 d-none animate-down" id="sessionContainer">
+                                    <label class="form-label small fw-bold text-secondary">Buổi nghỉ (Áp dụng cho số ngày lẻ)</label>
+                                    <select id="leaveSession" class="form-select border-warning bg-warning bg-opacity-10 text-dark fw-bold">
+                                        <option value="Buổi Sáng">Sáng</option>
+                                        <option value="Buổi Chiều">Chiều</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-secondary">Phân loại</label>
+                                    <input type="text" id="type" class="form-control fw-bold bg-light" readonly>
+                                    <div id="calcMsg" class="text-danger small mt-1 fst-italic d-none"></div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-secondary">Lý do nghỉ</label>
+                                    <textarea id="reason" class="form-control" rows="2" placeholder="Nhập lý do..." required></textarea>
+                                </div>
+
+                                <input type="hidden" id="bossEmail">
+                                <button type="submit" class="btn btn-danger w-100 py-2 shadow-sm fw-bold">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> GỬI YÊU CẦU
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="historySection" class="mt-4 d-none animate-up" style="animation-delay: 0.1s;">
+                    <h6 class="fw-bold text-secondary ps-2 mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử của bạn</h6>
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle small">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-3 py-3">Ngày</th>
+                                            <th>Chi tiết</th>
+                                            <th class="text-end pe-3">Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="listBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboardContainer" class="col-lg-10 d-none animate-up">
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold text-secondary mb-0">QUẢN LÝ LỊCH NGHỈ</h4>
+                    <div class="d-flex gap-2">
+                        <button id="btnBackToForm" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Tạo đơn cá nhân
+                        </button>
+                        <button id="btnLogoutDash" class="btn btn-dark">
+                            <i class="fa-solid fa-power-off me-1"></i> Thoát
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 main-card">
+                    <div class="card-header bg-white py-3 border-bottom-0">
+                        <ul class="nav nav-pills card-header-pills" id="pills-tab" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active fw-bold" id="pills-list-tab" data-bs-toggle="pill" data-bs-target="#pills-list" type="button">
+                                    <i class="fa-solid fa-list-ul me-2"></i>Danh Sách
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link fw-bold" id="pills-cal-tab" data-bs-toggle="pill" data-bs-target="#pills-cal" type="button">
+                                    <i class="fa-regular fa-calendar-days me-2"></i>Lịch Tổng Thể
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card-body bg-light">
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="pills-list">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-5">
+                                        <input type="text" id="searchBox" class="form-control" placeholder="🔍 Tìm tên nhân viên...">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="filterMonth" class="form-select">
+                                            <option value="all">Tất cả thời gian</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select id="filterStatus" class="form-select">
+                                            <option value="all">Tất cả trạng thái</option>
+                                            <option value="Chờ duyệt">⏳ Chờ duyệt</option>
+                                            <option value="Đã duyệt">✅ Đã duyệt</option>
+                                            <option value="Từ chối">❌ Từ chối</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded shadow-sm border">
+                                    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="bg-light text-secondary small text-uppercase sticky-top" style="z-index: 10;">
+                                                <tr>
+                                                    <th class="ps-3 py-3 border-bottom-0" style="min-width: 120px;">Ngày Nghỉ</th>
+                                                    <th class="border-bottom-0" style="min-width: 180px;">Nhân viên</th>
+                                                    <th class="border-bottom-0" style="min-width: 250px;">Lý do</th>
+                                                    <th class="text-end pe-3 border-bottom-0" style="min-width: 130px;">Trạng thái</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="allHistoryBody"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="pills-cal">
+                                <div class="mb-4 animate-up">
+                                    <h6 class="fw-bold text-danger mb-3 border-bottom pb-2">
+                                        <i class="fa-solid fa-calendar-day me-2"></i>Nghỉ Hôm Nay
+                                    </h6>
+                                    <div class="row g-3" id="todayGrid">
+                                        </div>
+                                </div>
+
+                                <div class="animate-up" style="animation-delay: 0.1s;">
+                                    <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">
+                                        <i class="fa-regular fa-calendar-days me-2"></i>Tất cả lịch nghỉ
+                                    </h6>
+                                    <div class="row g-3" id="calendarGrid">
+                                        </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="resign_off.js"></script>
+</body>
+</html>

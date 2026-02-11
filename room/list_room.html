@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIS | Lịch đã book phòng họp</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png"> 
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    
+    <style>
+        :root { --tis-red: #D61F2F; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f4f7f6; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            padding: 20px;
+        }
+
+        .fc-header-toolbar { margin-bottom: 1.5rem !important; }
+        .fc-button-primary { background-color: var(--tis-red) !important; border-color: var(--tis-red) !important; }
+        .fc-button-primary:hover { background-color: #b81826 !important; }
+        .fc-event { cursor: pointer; border: none !important; padding: 2px 5px; }
+        .fc-daygrid-event-dot { border-color: var(--tis-red) !important; }
+        .event-phong-lon { background-color: #D61F2F !important; }
+        .event-phong-nho { background-color: #6c757d !important; }
+
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <div class="spinner-border text-danger mb-3" role="status"></div>
+        <h5 class="fw-bold">Đang tải lịch phòng họp...</h5>
+    </div>
+
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+            <div class="d-flex align-items-center">
+                <img src="logo.png" alt="Logo" style="height: 45px;" class="me-3">
+                <h4 class="mb-0 fw-bold text-dark">LỊCH PHÒNG HỌP TIS</h4>
+            </div>
+            <a href="room.html" class="btn btn-danger rounded-pill fw-bold px-4 shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> ĐẶT PHÒNG NGAY
+            </a>
+        </div>
+
+        <div class="card glass-card">
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const ROOM_API_URL = "https://script.google.com/macros/s/AKfycby3f_cFZp8YP6AH9DTBipDves8fMZls7aIkCKuc4iKLrWbL81X8PlTh4bNFUhjhsP8wtw/exec";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchEvents();
+        });
+
+        async function fetchEvents() {
+            try {
+                const response = await fetch(ROOM_API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: 'GET_ROOM_DATA' })
+                });
+                const result = await response.json();
+                
+                document.getElementById('loadingOverlay').style.display = 'none';
+
+                if (result.status === 'success') {
+                    const events = result.data.map(item => {
+                        const dateParts = item.date.split('/');
+                        const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                        
+                        return {
+                            title: `${item.room}: ${item.fullName}`,
+                            start: `${formattedDate}T${item.start}:00`,
+                            end: `${formattedDate}T${item.end}:00`,
+                            extendedProps: {
+                                room: item.room,
+                                user: item.fullName,
+                                title: item.title,
+                                note: item.note,
+                                time: `${item.start} - ${item.end}`
+                            },
+                            className: item.room.includes('Lớn') ? 'event-phong-lon' : 'event-phong-nho'
+                        };
+                    });
+
+                    initCalendar(events);
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById('loadingOverlay').innerHTML = "<h5>Lỗi kết nối dữ liệu!</h5>";
+            }
+        }
+
+        function initCalendar(events) {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'vi',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: 'Hôm nay',
+                    month: 'Tháng',
+                    week: 'Tuần',
+                    day: 'Ngày'
+                },
+                events: events,
+                eventClick: function(info) {
+                    const p = info.event.extendedProps;
+                    Swal.fire({
+                        title: `<span style="color:var(--tis-red)">${p.room}</span>`,
+                        html: `
+                            <div class="text-start">
+                                <p><strong>👤 Người đặt:</strong> ${p.user}</p>
+                                <p><strong>⏰ Thời gian:</strong> ${p.time}</p>
+                                <p><strong>📝 Nội dung:</strong> ${p.title}</p>
+                                <p><strong>📌 Ghi chú:</strong> ${p.note || 'Không có'}</p>
+                            </div>
+                        `,
+                        icon: 'info',
+                        confirmButtonColor: '#D61F2F'
+                    });
+                }
+            });
+            calendar.render();
+        }
+    </script>
+</body>
+</html>

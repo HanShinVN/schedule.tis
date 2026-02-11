@@ -8,13 +8,11 @@ const els = {
     startTime: document.getElementById('startTime'),
     days: document.getElementById('days'),
     transport: document.getElementById('transport'),
-    
-    // Phần tử menu chọn xe & ô nhập "Khác"
+
     carOwnerGroup: document.getElementById('carOwnerGroup'),
     carOwnerSelect: document.getElementById('carOwnerSelect'),
     carOwnerInput: document.getElementById('carOwnerInput'),
     
-    // Container chứa các điểm đến (Multi-stop)
     destinationsContainer: document.getElementById('destinationsContainer'),
 
     companions: document.getElementById('companions'),
@@ -32,9 +30,6 @@ const els = {
 let isBlocked = false;
 let checkTimeout = null;
 
-// --- 1. CÁC HÀM XỬ LÝ ĐIỂM ĐẾN (MULTI-STOP) ---
-
-// Thêm ô nhập điểm đến mới
 function addDestination(value = "") {
     const count = els.destinationsContainer.querySelectorAll('.destination-item').length + 1;
     const div = document.createElement('div');
@@ -49,24 +44,20 @@ function addDestination(value = "") {
     els.destinationsContainer.appendChild(div);
 }
 
-// Xóa điểm đến
 function removeDestination(btn) {
     btn.closest('.destination-item').remove();
     reindexDestinations();
 }
 
-// Đánh lại số thứ tự (1, 2, 3...) sau khi xóa
 function reindexDestinations() {
     const items = els.destinationsContainer.querySelectorAll('.destination-item');
     items.forEach((item, index) => {
         item.querySelector('.input-group-text').innerText = index + 1;
-        // Ẩn nút xóa cho dòng đầu tiên
         const removeBtn = item.querySelector('.btn-outline-danger');
         if (index === 0 && removeBtn) removeBtn.remove();
     });
 }
 
-// Lấy danh sách các điểm đến (trả về Mảng)
 function getDestinationsList() {
     const inputs = els.destinationsContainer.querySelectorAll('.dest-input');
     const dests = [];
@@ -76,9 +67,6 @@ function getDestinationsList() {
     return dests;
 }
 
-// --- 2. CÁC HÀM TIỆN ÍCH KHÁC ---
-
-// Helper: Lấy giá trị thực tế của "Xe của ai"
 function getCarOwnerValue() {
     if (els.transport.value !== 'Ô tô') return '';
     const selected = els.carOwnerSelect.value;
@@ -265,8 +253,6 @@ async function checkSchedule() {
     els.btnSubmit.disabled = false;
 
     if (res.status === 'BLOCKED') {
-        // Lưu ý: Nếu đang sửa mà giữ nguyên giờ cũ, hệ thống sẽ báo trùng với chính nó.
-        // Mẹo: Tạm thời cứ đổi giờ một chút hoặc bỏ qua nếu bạn chắc chắn sẽ xóa chuyến cũ.
         isBlocked = true;
         els.alertBox.className = 'alert alert-danger shadow-sm border-danger';
         els.alertBox.innerHTML = `⛔ <strong>KHÔNG THỂ ĐĂNG KÝ</strong>\n</br>${res.message}`;

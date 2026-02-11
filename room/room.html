@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIS | Đặt Phòng Họp</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --tis-red: #D61F2F;
+            --tis-red-hover: #b81826;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #2b3440;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        #bg-container {
+            display: flex;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            z-index: -1;
+            background-color: #1a1d20;
+        }
+
+        .bg-half {
+            flex: 1;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0.4;
+            filter: blur(8px) grayscale(40%);
+        }
+
+        #bg-left { background-image: url('vp2.jpg'); }
+        #bg-right { background-image: url('vp1.jpg'); }
+
+        .bg-half.active {
+            flex: 1.8;
+            opacity: 0.8;
+            filter: blur(0px) grayscale(0%);
+        }
+
+        .bg-half.inactive {
+            flex: 0.2;
+            opacity: 0.1;
+            filter: blur(12px) grayscale(80%);
+        }
+
+        .overlay-dark {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ================= CSS FORM KÍNH MỜ ================= */
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.85) !important; 
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-control {
+            border-radius: 8px; 
+            border: 1px solid #d2d6dc;
+            padding: 8px 14px; 
+            background: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            font-size: 0.95rem; 
+            transition: all 0.2s;
+        }
+        .form-control:focus {
+            border-color: var(--tis-red);
+            box-shadow: 0 0 0 3px rgba(214, 31, 47, 0.15); 
+            background: #ffffff;
+        }
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem; 
+            color: #4b5563;
+            margin-bottom: 4px; 
+        }
+
+        .room-map {
+            display: flex; gap: 16px; justify-content: center;
+        }
+        .room-card {
+            flex: 1; 
+            border: 2px solid transparent; 
+            border-radius: 16px; 
+            padding: 20px 15px; 
+            cursor: pointer;
+            text-align: center; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .room-card:hover { 
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-4px); 
+        }
+        .room-card.selected { 
+            background: #ffffff;
+            border-color: var(--tis-red); 
+            box-shadow: 0 10px 25px rgba(214, 31, 47, 0.15);
+            transform: translateY(-4px);
+        }
+        .room-icon { 
+            font-size: 2.2rem; 
+            color: #9ca3af; 
+            margin-bottom: 8px; 
+            transition: color 0.3s;
+        }
+        .room-card.selected .room-icon { color: var(--tis-red); }
+        .room-card h6 { font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+        .time-box {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            padding: 15px; 
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #E62A3B 0%, #B91422 100%);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(214, 31, 47, 0.3);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(214, 31, 47, 0.4);
+            background: linear-gradient(135deg, #f03244 0%, #c41726 100%);
+            color: white;
+        }
+
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="bg-container">
+        <div id="bg-left" class="bg-half"></div>
+        <div id="bg-right" class="bg-half"></div>
+    </div>
+    
+    <div class="overlay-dark"></div>
+
+    <div class="container py-5 relative" style="z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                
+                <div  class="text-center mb-4 fade-in">
+                    <img src="logo.png" alt="TIS Logo" class="img-fluid mb-3" style="max-height: 70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
+                    <h4 class="text-uppercase fw-bold text-white mb-2" style="letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">Đăng ký Phòng Họp</h4>
+                    
+                    <div class="mt-3">
+                        <a href="list_room.html" class="btn btn-light btn-sm rounded-pill px-4 py-2 shadow-sm fw-bold text-uppercase" style="color: #D61F2F;">
+                            <i class="bi bi-list-task me-1"></i> Xem Lịch Đặt Phòng
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card border-0 fade-in glass-card">
+                    <div class="card-body p-4 p-md-5">
+                        <form id="roomForm">
+                            
+                            <div class="mb-4">
+                                <label class="form-label text-dark"><i class="bi bi-building-check text-danger me-1"></i> Chọn phòng họp</label>
+                                <div class="room-map">
+                                    <div class="room-card" onclick="selectRoom('Phòng Lớn', 15, this, 'left')">
+                                        <div class="room-icon"><i class="bi bi-easel2-fill"></i></div>
+                                        <h6>Phòng Lớn</h6>
+                                        <div class="small text-muted"><i class="bi bi-people-fill me-1"></i>12-15 người</div>
+                                    </div>
+                                    <div class="room-card" onclick="selectRoom('Phòng Nhỏ', 6, this, 'right')">
+                                        <div class="room-icon"><i class="bi bi-display"></i></div>
+                                        <h6>Phòng Nhỏ</h6>
+                                        <div class="small text-muted"><i class="bi bi-people-fill me-1"></i>4-6 người</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="selectedRoom" required>
+                                <div id="roomAlert" class="text-danger small mt-2 d-none fw-medium"><i class="bi bi-exclamation-circle-fill me-1"></i> Vui lòng chọn một phòng họp!</div>
+                            </div>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Người đặt <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="fullName" placeholder="VD: Nguyễn Văn A" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Nội dung cuộc họp </label><span class="text-muted fw-normal" style="font-size: 0.75rem;"></span></label>
+                                    <input type="text" class="form-control" id="meetingTitle" placeholder="VD: Họp báo cáo tuần">
+                                </div>
+                            </div>
+
+                            <div class="time-box mb-4">
+                                <label class="form-label text-dark mb-3"><i class="bi bi-clock-history text-danger me-1"></i> Thời gian sử dụng</label>
+                                <div class="row g-3">
+                                    <div class="col-12 col-sm-4">
+                                        <label class="small text-muted fw-bold">Ngày họp</label>
+                                        <input type="date" class="form-control" id="meetingDate" required>
+                                    </div>
+                                    <div class="col-6 col-sm-4">
+                                        <label class="small text-muted fw-bold">Từ giờ</label>
+                                        <input type="time" class="form-control" id="startTime" required>
+                                    </div>
+                                    <div class="col-6 col-sm-4">
+                                        <label class="small text-muted fw-bold">Đến giờ</label>
+                                        <input type="time" class="form-control" id="endTime" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-dark"><i class="bi bi-pencil-square text-danger me-1"></i> Ghi chú thêm <span class="text-muted fw-normal" style="font-size: 0.75rem;">(Không bắt buộc)</span></label>
+                                <textarea class="form-control" id="meetingNote" rows="2" placeholder="VD: Cần chuẩn bị thêm 5 ghế, nước suối..."></textarea>
+                            </div>
+
+                            <div id="conflictAlert" class="alert d-none mb-4 py-3 text-center small fw-bold" style="border-radius: 12px;"></div>
+
+                            <button type="submit" class="btn btn-submit w-100 mt-2" id="btnSubmit">
+                                <i class="bi bi-calendar2-check-fill me-2"></i> CHỐT ĐẶT PHÒNG
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4 text-white-50 small" style="text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                    &copy; 2026 TIS Insurance Broker. Internal System.
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="room.js"></script>
+</body>
+</html>
