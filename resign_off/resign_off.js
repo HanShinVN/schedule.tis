@@ -83,7 +83,24 @@ function renderDashboard(data) {
     const grid = el('calendarGrid');
     const todayGrid = el('todayGrid');
     const filterMonthSelect = el('filterMonth');
-    
+
+    data.sort((a, b) => {
+        const parseDate = (dateStr) => {
+            if (!dateStr) return new Date(0);
+            const parts = dateStr.split(' ')[0].split('/'); 
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0]);
+            }
+            return new Date(0);
+        };
+
+        const dateA = parseDate(a.start);
+        const dateB = parseDate(b.start);
+        
+
+        return dateB - dateA;
+    });
+
     tbody.innerHTML = ''; grid.innerHTML = ''; 
     if(todayGrid) todayGrid.innerHTML = '';
     
