@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+}
+
+/* LOGO */
+.logo-main {
+    height: 70px;
+    width: auto;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+/* CARDS */
+.main-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    background: white;
+    overflow: hidden;
+}
+
+.info-box {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+/* FORMS */
+.form-control, .input-group-text, .form-select {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(214, 31, 47, 0.1);
+    border-color: #D61F2F;
+}
+
+.otp-input {
+    letter-spacing: 8px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.5rem;
+    max-width: 200px;
+}
+
+/* BUTTONS */
+.btn-primary { background-color: #D61F2F; border: none; }
+.btn-primary:hover { background-color: #b01523; }
+.btn-danger { background-color: #D61F2F; border: none; }
+.btn-danger:hover { background-color: #b01523; }
+.btn-success { background-color: #198754; border: none; }
+
+.nav-pills .nav-link.active {
+    background-color: #D61F2F;
+}
+.nav-pills .nav-link {
+    color: #555;
+}
+
+/* ICON CIRCLE */
+.icon-circle {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+}
+
+/* LOADER */
+.loader-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255,255,255,0.9);
+    z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(2px);
+}
+.spinner {
+    width: 50px; height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #D61F2F;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* ANIMATION */
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.animate-up { animation: fadeUp 0.6s ease-out forwards; opacity: 0; }
+.animate-down { animation: fadeDown 0.6s ease-out forwards; opacity: 0; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* SWEETALERT */
+.swal2-popup { font-family: 'Segoe UI', sans-serif !important; border-radius: 15px !important; }
