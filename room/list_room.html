@@ -141,7 +141,10 @@
                                 user: item.fullName,
                                 title: item.title,
                                 note: item.note,
-                                time: `${item.start} - ${item.end}`
+                                time: `${item.start} - ${item.end}`,
+                                rawDate: formattedDate,
+                                rawStart: item.start,
+                                rawEnd: item.end
                             },
                             className: item.room.includes('Lớn') ? 'event-phong-lon' : 'event-phong-nho'
                         };
@@ -177,23 +180,96 @@
                 events: events,
                 eventClick: function(info) {
                     const p = info.event.extendedProps;
+
+                    const meetingData = {
+                        room: p.room, 
+                        fullName: p.user, 
+                        title: p.title, 
+                        note: p.note, 
+                        date: p.rawDate, 
+                        start: p.rawStart, 
+                        end: p.rawEnd
+                    };
+                    const encodedData = encodeURIComponent(JSON.stringify(meetingData));
+
                     Swal.fire({
-                        title: `<span style="color:var(--tis-red)">${p.room}</span>`,
+                        title: `<span style="color:var(--tis-red); font-weight: bold;">${p.room}</span>`,
                         html: `
-                            <div class="text-start">
-                                <p><strong>👤 Người đặt:</strong> ${p.user}</p>
-                                <p><strong>⏰ Thời gian:</strong> ${p.time}</p>
-                                <p><strong>📝 Nội dung:</strong> ${p.title}</p>
-                                <p><strong>📌 Ghi chú:</strong> ${p.note || 'Không có'}</p>
+                            <div class="text-start mb-4" style="font-size: 1.05rem; line-height: 1.8;">
+                                <p class="mb-2"><i class="bi bi-person-fill text-muted me-2"></i> <strong>Người đặt:</strong> ${p.user}</p>
+                                <p class="mb-2"><i class="bi bi-clock-fill text-danger me-2"></i> <strong>Thời gian:</strong> ${p.time}</p>
+                                <p class="mb-2"><i class="bi bi-file-text-fill text-primary me-2"></i> <strong>Nội dung:</strong> ${p.title}</p>
+                                <p class="mb-0"><i class="bi bi-pin-angle-fill text-warning me-2"></i> <strong>Ghi chú:</strong> ${p.note || 'Không có'}</p>
+                            </div>
+                            <div class="d-flex justify-content-center gap-3 border-top pt-4">
+                                <button class="btn btn-warning text-dark fw-bold px-4 shadow-sm" onclick="editMeeting('${encodedData}')">
+                                    <i class="bi bi-pencil-square me-1"></i> Sửa lịch
+                                </button>
+                                <button class="btn btn-outline-danger fw-bold px-4 shadow-sm" onclick="deleteMeeting('${p.room}', '${p.rawDate}', '${p.rawStart}')">
+                                    <i class="bi bi-trash me-1"></i> Xóa lịch
+                                </button>
                             </div>
                         `,
-                        icon: 'info',
-                        confirmButtonColor: '#D61F2F'
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        customClass: {
+                            popup: 'rounded-4'
+                        }
                     });
                 }
             });
             calendar.render();
         }
+        window.editMeeting = function(encodedData) {
+            const data = JSON.parse(decodeURIComponent(encodedData));
+            Swal.close();
+            localStorage.setItem('edit_meeting_data', JSON.stringify({
+                ...data,
+                oldRoom: data.room,
+                oldDate: data.date,
+                oldStart: data.start
+            }));
+            window.location.href = 'room.html';
+        };
+
+        window.deleteMeeting = async function(room, date, start) {
+            Swal.close();
+            Swal.fire({
+                title: 'Xóa lịch họp này?',
+                text: "Bạn có chắc chắn muốn hủy lịch và giải phóng phòng họp?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#D61F2F',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash"></i> Xóa ngay',
+                cancelButtonText: 'Đóng'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ 
+                        title: 'Đang xóa lịch...', 
+                        allowOutsideClick: false, 
+                        didOpen: () => { Swal.showLoading() } 
+                    });
+                    
+                    try {
+                        const res = await fetch(ROOM_API_URL, {
+                            method: "POST",
+                            body: JSON.stringify({ action: 'DELETE_ROOM', room: room, date: date, start: start })
+                        }).then(r => r.json());
+                        
+                        if (res.status === 'success') {
+                            Swal.fire('Thành công!', 'Lịch họp đã được xóa.', 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Lỗi', res.message || 'Không thể xóa lịch lúc này.', 'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Lỗi', 'Mất kết nối với máy chủ hệ thống TIS.', 'error');
+                    }
+                }
+            });
+        };
     </script>
 </body>
 </html>

@@ -6,10 +6,13 @@
     <title>TIS | Đăng ký nghỉ</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png"> 
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.css" rel="stylesheet">
     <link rel="stylesheet" href="annual_leave_booking.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 </head>
 <body>
 
@@ -113,7 +116,7 @@
 
                                 <div class="mb-4">
                                     <label class="form-label small fw-bold text-secondary">Lý do nghỉ</label>
-                                    <textarea id="reason" class="form-control" rows="2" placeholder="Nhập lý do..." required></textarea>
+                                    <textarea id="reason" class="form-control" rows="2" placeholder="Nhập lý do... (Không bắt buộc)"></textarea>
                                 </div>
 
                                 <input type="hidden" id="bossEmail">
@@ -134,7 +137,7 @@
                                     <thead class="bg-light">
                                         <tr>
                                             <th class="ps-3 py-3">Ngày</th>
-                                            <th>Chi tiết</th>
+                                            <th>Số ngày</th> <th>Chi tiết</th>
                                             <th class="text-end pe-3">Trạng thái</th>
                                         </tr>
                                     </thead>
@@ -220,16 +223,16 @@
                                     <h6 class="fw-bold text-danger mb-3 border-bottom pb-2">
                                         <i class="fa-solid fa-calendar-day me-2"></i>Nghỉ Hôm Nay
                                     </h6>
-                                    <div class="row g-3" id="todayGrid">
-                                        </div>
+                                    <div class="row g-3" id="todayGrid"></div>
                                 </div>
 
                                 <div class="animate-up" style="animation-delay: 0.1s;">
                                     <h6 class="fw-bold text-secondary mb-3 border-bottom pb-2">
-                                        <i class="fa-regular fa-calendar-days me-2"></i>Tất cả lịch nghỉ
+                                        <i class="fa-regular fa-calendar-days me-2"></i>Lịch Tổng Thể
                                     </h6>
-                                    <div class="row g-3" id="calendarGrid">
-                                        </div>
+                                    <div class="card bg-white p-3 border-0 shadow-sm rounded">
+                                        <div id="leaveCalendar"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

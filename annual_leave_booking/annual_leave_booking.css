@@ -94,3 +94,22 @@ body {
 
 /* SWEETALERT */
 .swal2-popup { font-family: 'Segoe UI', sans-serif !important; border-radius: 15px !important; }
+
+
+
+/* FULLCALENDAR OVERRIDES FOR LEAVE APP */
+.fc-header-toolbar { margin-bottom: 1.2rem !important; }
+.fc-button-primary { background-color: #D61F2F !important; border-color: #D61F2F !important; }
+.fc-button-primary:hover { background-color: #b01523 !important; }
+.fc-event { 
+    cursor: pointer; 
+    border: none !important; 
+    padding: 3px 6px !important;
+    border-radius: 4px !important;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.event-approved { background: linear-gradient(135deg, #198754, #146c43) !important; color: white !important; }
+.event-pending { background: linear-gradient(135deg, #ffc107, #e0a800) !important; color: #333 !important; }
+.fc-daygrid-day-number { color: #555 !important; font-weight: 600; text-decoration: none !important; }
+.fc-daygrid-day-number:hover { color: #D61F2F !important; }
