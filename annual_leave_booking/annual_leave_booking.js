@@ -5,16 +5,14 @@ const setLoader = (show) => el('loader').classList.toggle('d-none', !show);
 const urlParams = new URLSearchParams(window.location.search);
 const isDashboardView = urlParams.get('view') === 'dashboard';
 
-let leaveCalendarInstance = null; // Biến toàn cục lưu trữ instance của lịch
+let leaveCalendarInstance = null;
 
-// Hàm format ngày tháng VN
 function formatDateVN(dateStr) {
     if (!dateStr) return "";
     const p = dateStr.split("-");
     return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dateStr;
 }
 
-// Hàm tính ngày kết thúc cho FullCalendar (Vì thư viện này tính end date là exclusive)
 function getCalendarDates(dateStr, days) {
     let p = dateStr.split(' ')[0].split('/');
     if (p.length !== 3) return null;
@@ -24,7 +22,7 @@ function getCalendarDates(dateStr, days) {
     let endISO = null;
     if (days > 1) {
         let end = new Date(start);
-        end.setDate(end.getDate() + Math.ceil(days)); // Cộng thêm số ngày để ra end date
+        end.setDate(end.getDate() + Math.ceil(days));
         endISO = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
     }
     return { start: startISO, end: endISO };
@@ -107,7 +105,6 @@ function renderDashboard(data) {
     const todayGrid = el('todayGrid');
     const filterMonthSelect = el('filterMonth');
 
-    // Sắp xếp dữ liệu theo ngày mới nhất
     data.sort((a, b) => {
         const parseDate = (dateStr) => {
             if (!dateStr) return new Date(0);
@@ -131,7 +128,7 @@ function renderDashboard(data) {
     let hasToday = false;
     const uniqueMonths = new Set();
     
-    let calendarEvents = []; // Mảng chứa dữ liệu cho FullCalendar
+    let calendarEvents = [];
 
     data.forEach(item => {
         let badgeClass = item.status === 'Đã duyệt' ? 'bg-success' : (item.status === 'Chờ duyệt' ? 'bg-warning text-dark' : 'bg-danger');
@@ -299,14 +296,12 @@ el('btnVerify').onclick = async () => {
     } catch(e) { setLoader(false); }
 };
 
-// CÁC NÚT ĐIỀU HƯỚNG & LOGOUT
 el('btnBack').onclick = (e) => { e.preventDefault(); el('stepOtp').classList.add('d-none'); el('stepEmail').classList.remove('d-none'); };
 const doLogout = () => { localStorage.removeItem('tis_token'); window.location.href = window.location.pathname; };
 el('btnLogout').onclick = doLogout; el('btnLogoutDash').onclick = doLogout;
 el('btnToDashboard').onclick = () => showDashboard(localStorage.getItem('tis_email'));
 el('btnBackToForm').onclick = () => window.location.href = window.location.pathname;
 
-// HÀM TÍNH TOÁN LOẠI PHÉP VÀ BUỔI NGHỈ
 function calculateLeave() {
     const bal = parseFloat(el('myBal').innerText)||0, days = parseFloat(el('days').value)||0;
     const typeInp = el('type'), msg = el('calcMsg');
@@ -326,7 +321,6 @@ el('days').addEventListener('input', () => {
     }
 });
 
-// LOAD LỊCH SỬ CÁ NHÂN VÀO TABLE
 async function loadHistory(email) {
     try {
         const tbody = el('listBody'); 
@@ -382,7 +376,7 @@ el('leaveForm').addEventListener('submit', async (e) => {
         startDate: el('startDate').value, 
         days: el('days').value, 
         type: el('type').value, 
-        reason: el('reason').value || "Không có", // Xử lý khi lý do để trống
+        reason: el('reason').value || "Không có",
         session: sessionChoice
     };
     
