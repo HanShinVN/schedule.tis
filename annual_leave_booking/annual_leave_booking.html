@@ -89,41 +89,25 @@
                             <h6 class="fw-bold text-danger text-uppercase mb-3 border-bottom pb-2">Tạo Đơn Mới</h6>
 
                             <form id="leaveForm">
-                                <div class="row g-2 mb-3">
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold text-secondary">Ngày bắt đầu</label>
-                                        <input type="date" id="startDate" class="form-control" required>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label small fw-bold text-secondary">Số ngày</label>
-                                        <input type="number" id="days" class="form-control" step="0.5" min="0.5" value="1" required>
-                                    </div>
+                                <input type="hidden" id="startDate" required>
+                                <input type="hidden" id="days" value="0" required>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-secondary d-flex justify-content-between align-items-center">
+                                        <span>Chọn các ngày nghỉ trên lịch</span>
+                                        <span class="badge bg-secondary" id="selectedDaysBadge">Đã chọn: 0 ngày</span>
+                                    </label>
+                                    <div id="bookingCalendar" class="bg-white p-2 border rounded shadow-sm" style="font-size: 0.9rem;"></div>
                                 </div>
 
                                 <div class="mb-3 d-none animate-down" id="sessionContainer">
-                                    <label class="form-label small fw-bold text-secondary">Buổi nghỉ (Áp dụng cho số ngày lẻ)</label>
+                                    <label class="form-label small fw-bold text-secondary">Buổi nghỉ (Áp dụng cho trường hợp nghỉ nửa ngày)</label>
                                     <select id="leaveSession" class="form-select border-warning bg-warning bg-opacity-10 text-dark fw-bold">
-                                        <option value="Buổi Sáng">Sáng</option>
-                                        <option value="Buổi Chiều">Chiều</option>
+                                        <option value="Cả ngày">Cả ngày (1 ngày)</option>
+                                        <option value="Buổi Sáng">Chỉ nghỉ Buổi Sáng (0.5 ngày)</option>
+                                        <option value="Buổi Chiều">Chỉ nghỉ Buổi Chiều (0.5 ngày)</option>
                                     </select>
                                 </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-secondary">Phân loại</label>
-                                    <input type="text" id="type" class="form-control fw-bold bg-light" readonly>
-                                    <div id="calcMsg" class="text-danger small mt-1 fst-italic d-none"></div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="form-label small fw-bold text-secondary">Lý do nghỉ</label>
-                                    <textarea id="reason" class="form-control" rows="2" placeholder="Nhập lý do... (Không bắt buộc)"></textarea>
-                                </div>
-
-                                <input type="hidden" id="bossEmail">
-                                <button type="submit" class="btn btn-danger w-100 py-2 shadow-sm fw-bold">
-                                    <i class="fa-solid fa-paper-plane me-2"></i> GỬI YÊU CẦU
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>

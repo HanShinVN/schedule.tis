@@ -59,6 +59,9 @@ function handleLoginSuccess(data, email) {
 }
 
 // HIỂN THỊ FORM ĐĂNG KÝ
+let bookingCalendarInstance = null;
+let selectedDates = []; // Mảng lưu trữ các chuỗi ngày dạng 'YYYY-MM-DD' được chọn
+
 function showForm(data, email) {
     el('mainContainer').classList.remove('d-none');
     el('dashboardContainer').classList.add('d-none');
@@ -81,6 +84,96 @@ function showForm(data, email) {
     }
 
     loadHistory(email);
+    
+    // --- KHỞI TẠO LỊCH CHỌN NGÀY ĐĂNG KÝ NGHỈ ---
+    initBookingCalendar();
+}
+
+function initBookingCalendar() {
+    const calendarEl = el('bookingCalendar');
+    if (!calendarEl) return;
+
+    if (bookingCalendarInstance) {
+        bookingCalendarInstance.destroy();
+    }
+
+    selectedDates = []; // Reset danh sách chọn mỗi lần load form
+    updateSelectedDaysUI();
+
+    bookingCalendarInstance = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'vi',
+        height: 'auto',
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: ''
+        },
+        // Ngăn chọn các ngày trong quá khứ nếu bạn muốn (Tùy chọn)
+        validRange: {
+            start: new Date().toISOString().split('T')[0] 
+        },
+        dateClick: function(info) {
+            const dateStr = info.dateStr;
+            const index = selectedDates.indexOf(dateStr);
+
+            if (index > -1) {
+                // Nếu ngày này đã được chọn trước đó -> Bỏ chọn
+                selectedDates.splice(index, 1);
+                info.dayEl.style.backgroundColor = ''; // Trả lại màu nền mặc định
+            } else {
+                // Nếu chưa được chọn -> Thêm vào danh sách chọn
+                selectedDates.push(dateStr);
+                info.dayEl.style.backgroundColor = '#ffcccc'; // Tô màu nền đỏ nhạt để nhận biết
+            }
+
+            // Sắp xếp lại mảng ngày tăng dần
+            selectedDates.sort();
+
+            // Đồng bộ dữ liệu vào các thẻ input ẩn để các xử lý submit cũ không bị lỗi
+            if (selectedDates.length > 0) {
+                el('startDate').value = selectedDates[0]; // Ngày bắt đầu là ngày nhỏ nhất
+                
+                // Mặc định tính mỗi ngày tích chọn là 1 ngày công
+                // Nếu chỉ chọn đúng 1 ngày, cho phép đổi cấu hình buổi nghỉ (Sáng/Chiều) ở hàm dưới
+                el('days').value = selectedDates.length; 
+            } else {
+                el('startDate').value = '';
+                el('days').value = 0;
+            }
+
+            updateSelectedDaysUI();
+        }
+    });
+
+    bookingCalendarInstance.render();
+}
+
+// Hàm cập nhật giao diện hiển thị số ngày và kiểm tra hiển thị phân loại phép
+function updateSelectedDaysUI() {
+    const totalDays = selectedDates.length;
+    el('selectedDaysBadge').innerText = `Đã chọn: ${totalDays} ngày`;
+    
+    // Hiển thị tùy chọn nghỉ nửa ngày (Buổi sáng / Buổi chiều) CHỈ khi user chọn đúng 1 ngày duy nhất
+    if (totalDays === 1) {
+        el('sessionContainer').classList.remove('d-none');
+        // Lắng nghe sự kiện thay đổi Buổi nghỉ để cập nhật lại số lượng ngày (1 ngày thành 0.5 ngày)
+        el('leaveSession').onchange = function() {
+            if (this.value === 'Buổi Sáng' || this.value === 'Buổi Chiều') {
+                el('days').value = 0.5;
+            } else {
+                el('days').value = 1;
+            }
+            calculateLeave();
+        };
+        // Kích hoạt tính toán ban đầu cho 1 ngày
+        el('leaveSession').value = 'Cả ngày';
+        el('days').value = 1;
+    } else {
+        el('sessionContainer').classList.add('d-none');
+        el('days').value = totalDays;
+    }
+
     calculateLeave();
 }
 
@@ -311,15 +404,7 @@ function calculateLeave() {
     else { const unpaid = days-bal; typeInp.value = `${bal} Phép năm + ${unpaid} Không lương`; typeInp.className="form-control fw-bold bg-light text-warning"; msg.innerHTML='Thiếu phép. Hệ thống sẽ tự tách đơn.'; msg.classList.remove('d-none'); }
 }
 
-el('days').addEventListener('input', () => {
-    calculateLeave();
-    const daysVal = parseFloat(el('days').value) || 0;
-    if (daysVal % 1 !== 0) {
-        el('sessionContainer').classList.remove('d-none');
-    } else {
-        el('sessionContainer').classList.add('d-none');
-    }
-});
+
 
 async function loadHistory(email) {
     try {
@@ -347,10 +432,20 @@ async function loadHistory(email) {
 // XỬ LÝ SUBMIT FORM TẠO ĐƠN MỚI
 el('leaveForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const daysVal = parseFloat(el('days').value) || 0;
+    if (daysVal <= 0 || selectedDates.length === 0) {
+        return Swal.fire("Thông báo", "Vui lòng chọn ít nhất một ngày nghỉ trên cuốn lịch!", "warning");
+    }
+
     const displayDate = formatDateVN(el('startDate').value);
+    
+    // Tạo chuỗi danh sách các ngày cụ thể để hiển thị lên bảng xác nhận cho rõ ràng
+    const formattedSelectedDates = selectedDates.map(d => formatDateVN(d)).join(', ');
+
     const confirm = await Swal.fire({ 
         title: 'Gửi yêu cầu nghỉ?', 
-        html: `<b>Bạn đang đăng ký nghỉ ${el('days').value} ngày</b><br>Bắt đầu từ: <b>${displayDate}</b>`, 
+        html: `<b>Bạn đang đăng ký nghỉ tổng cộng: ${daysVal} ngày</b><br>Các ngày đã chọn: <br><span class="text-danger small">${formattedSelectedDates}</span>`, 
         icon: 'question', 
         showCancelButton: true, 
         confirmButtonText: 'Gửi đơn', 
@@ -361,10 +456,11 @@ el('leaveForm').addEventListener('submit', async (e) => {
 
     setLoader(true);
     
-    const daysVal = parseFloat(el('days').value) || 0;
     let sessionChoice = "";
-    if (daysVal % 1 !== 0) {
+    if (daysVal === 0.5) {
         sessionChoice = el('leaveSession').value;
+    } else {
+        sessionChoice = "Cả ngày";
     }
 
     const payload = { 
@@ -373,11 +469,12 @@ el('leaveForm').addEventListener('submit', async (e) => {
         email: el('email').value, 
         dept: el('myDept').innerText, 
         manager: el('bossEmail').value, 
-        startDate: el('startDate').value, 
-        days: el('days').value, 
+        startDate: el('startDate').value, // Ngày bắt đầu chuỗi nghỉ
+        days: daysVal, // Tổng số ngày
         type: el('type').value, 
         reason: el('reason').value || "Không có",
-        session: sessionChoice
+        session: sessionChoice,
+        allDates: selectedDates.join(', ') // Gửi kèm danh sách tất cả các ngày cụ thể qua Google Sheets (nếu cần)
     };
     
     try {
@@ -392,11 +489,9 @@ el('leaveForm').addEventListener('submit', async (e) => {
             confirmButtonColor: '#D61F2F'
         });
 
-        // Reset form sau khi gửi thành công
+        // Reset form và reload lại lịch chọn phép
         el('leaveForm').reset(); 
-        el('days').value = 1; 
-        el('type').value = ""; 
-        el('sessionContainer').classList.add('d-none');
+        initBookingCalendar();
         loadHistory(el('email').value);
     } catch(e) { setLoader(false); Swal.fire("Lỗi kết nối", "Vui lòng thử lại sau", "error"); }
 });
