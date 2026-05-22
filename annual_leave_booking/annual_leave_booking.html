@@ -108,6 +108,23 @@
                                         <option value="Buổi Chiều">Chỉ nghỉ Buổi Chiều (0.5 ngày)</option>
                                     </select>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-secondary">Phân loại</label>
+                                    <input type="text" id="type" class="form-control fw-bold bg-light" readonly>
+                                    <div id="calcMsg" class="text-danger small mt-1 fst-italic d-none"></div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold text-secondary">Lý do nghỉ</label>
+                                    <textarea id="reason" class="form-control" rows="2" placeholder="Nhập lý do... (Không bắt buộc)"></textarea>
+                                </div>
+
+                                <input type="hidden" id="bossEmail">
+                                <button type="submit" class="btn btn-danger w-100 py-2 shadow-sm fw-bold">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> GỬI YÊU CẦU
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
