@@ -107,10 +107,7 @@ function initBookingCalendar() {
             center: 'title',
             right: ''
         },
-        // Ngăn chọn các ngày trong quá khứ
-        validRange: {
-            start: new Date().toISOString().split('T')[0] 
-        },
+        // Đã gỡ bỏ giới hạn validRange để cho phép chọn ngày trong quá khứ
         dateClick: function(info) {
             const dateStr = info.dateStr;
             const index = selectedDates.indexOf(dateStr);
@@ -122,7 +119,7 @@ function initBookingCalendar() {
             } else {
                 // Chưa chọn -> Thêm vào danh sách
                 selectedDates.push(dateStr);
-                info.dayEl.style.backgroundColor = '#ffcccc'; 
+                info.dayEl.style.backgroundColor = '#fee2e2'; 
             }
 
             selectedDates.sort();
